@@ -1,5 +1,6 @@
+pipe/pipe.gtkw
 *.vcd
+*.gtkw
 /wave
 /target
-/pipe
 /seq

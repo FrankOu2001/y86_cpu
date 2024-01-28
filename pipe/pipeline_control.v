@@ -24,19 +24,20 @@ wire h_ret;
 wire h_mispredict;
 
 assign h_load_use = (E_icode_i == `IMRMOVQ || E_icode_i == `IPOPQ) &&
-    (E_dstM_i == d_srcA_i || E_dstM_i == d_srcB_i);
+    (E_dstM_i == d_srcB_i || (E_dstM_i == d_srcA_i && 
+    !(D_icode_i == `IRMMOVQ || D_icode_i == `IPUSHQ)));
 
 assign h_ret = D_icode_i == `IRET || E_icode_i == `IRET || M_icode_i == `IRET;
 
-assign h_mispredict = E_icode_i == `IJXX && ~e_Cnd_i;
+assign h_mispredict = E_icode_i == `IJXX && !e_Cnd_i;
 
-assign F_stall_o = h_load_use || h_ret;
+assign F_stall_o = h_load_use | h_ret;
     
-assign D_bubble_o = h_mispredict || (~h_load_use && h_ret);
+assign D_bubble_o = h_mispredict | (~h_load_use & h_ret);
 
 assign D_stall_o = h_load_use;
 
-assign E_bubble_o = h_load_use || h_mispredict;
+assign E_bubble_o = h_load_use | h_mispredict;
 
 assign M_bubble_o = (m_stat_i == `SADR || m_stat_i == `SINS || m_stat_i == `SHLT) ||
     (W_stat_i == `SADR || W_stat_i == `SINS || W_stat_i == `SHLT);
