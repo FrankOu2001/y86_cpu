@@ -1,0 +1,5 @@
+*.vcd
+/wave
+/target
+/pipe
+/seq

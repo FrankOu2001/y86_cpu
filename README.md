@@ -1,2 +1,3 @@
 # y86_cpu
-A implement of Y86 cpu written in verilog
+
+A simple implement of Y86-64 pipeline cpu written in verilog.
