@@ -1,22 +1,26 @@
 `include "define.v"
 
 module execute (
-    input  wire         clk_i,
-    input  wire         rst_n_i,
-    input  wire [ 3:0]  E_icode_i,
-    input  wire [ 3:0]  E_ifun_i,
-    input  wire [63:0]  E_valC_i,
-    input  wire [63:0]  E_valA_i,
-    input  wire [63:0]  E_valB_i,
-    input  wire [ 3:0]  E_dstE_i, 
-    input  wire [ 3:0]  E_dstM_i,
-    input  wire [ 2:0]  m_stat_i,
-    input  wire [ 2:0]  W_stat_i,
+    input  wire        clk_i,
+    input  wire        rst_n_i,
+    input  wire [ 3:0] E_icode_i,
+    input  wire [ 3:0] E_ifun_i,
+    input  wire [63:0] E_valC_i,
+    input  wire [63:0] E_valA_i,
+    input  wire [63:0] E_valB_i,
+    input  wire [ 3:0] E_dstE_i, 
+    input  wire [ 3:0] E_dstM_i,
+    input  wire [ 3:0] E_srcA_i,
+    input  wire [ 3:0] M_dstM_i,
+    input  wire [63:0] m_valM_i,
+    input  wire [ 2:0] m_stat_i,
+    input  wire [ 2:0] W_stat_i,
 
-    output wire         e_Cnd_o,
-    output wire [63:0]  e_valE_o,
-    output wire [ 3:0]  e_dstE_o,
-    output wire [ 3:0]  e_dstM_o
+    output wire        e_Cnd_o,
+    output wire [63:0] e_valA_o,
+    output wire [63:0] e_valE_o,
+    output wire [ 3:0] e_dstE_o,
+    output wire [ 3:0] e_dstM_o
 );
 
 wire [63:0] aluA, aluB;
@@ -38,6 +42,9 @@ assign aluB = (E_icode_i == `IRMMOVQ || E_icode_i == `IMRMOVQ ||
             // (E_icode_i == `IRRMOVQ || E_icode_i == `IIRMOVQ) ? 0 : 0;
 
 assign alu_fun = (E_icode_i == `IOPQ) ? E_ifun_i : `ALUADD;
+
+assign e_valA_o = (E_icode_i == `IRMMOVQ || E_icode_i == `IPUSHQ) &&
+    E_srcA_i == M_dstM_i ? m_valM_i : E_valA_i;
 
 assign e_valE_o = (alu_fun == `ALUSUB) ? aluB - aluA : 
                 (alu_fun == `ALUAND)   ? aluB & aluA :

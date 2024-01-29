@@ -1,6 +1,10 @@
-pipe/pipe.gtkw
+pipe/*.gtkw
+pipe/*.vcd
+pipe/target
+pipe/wave
 *.vcd
 *.gtkw
 /wave
 /target
 /seq
+/test

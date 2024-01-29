@@ -62,49 +62,6 @@ assign rdata_o = {
 };
 
 initial begin
-//0x000:                      | .pos 0
-//                            | 
-//0x000: 30f20500000000000000 | irmovq $5, %rdx
-    mem[0] = 8'h30;
-    mem[1] = 8'hf2;
-    mem[2] = 8'h05;
-    mem[3] = 8'h00;
-    mem[4] = 8'h00;
-    mem[5] = 8'h00;
-    mem[6] = 8'h00;
-    mem[7] = 8'h00;
-    mem[8] = 8'h00;
-    mem[9] = 8'h00;
-//0x00a: 30f40001000000000000 | irmovq $0x100, %rsp
-    mem[10] = 8'h30;
-    mem[11] = 8'hf4;
-    mem[12] = 8'h00;
-    mem[13] = 8'h01;
-    mem[14] = 8'h00;
-    mem[15] = 8'h00;
-    mem[16] = 8'h00;
-    mem[17] = 8'h00;
-    mem[18] = 8'h00;
-    mem[19] = 8'h00;
-//0x014: 40240000000000000000 | rmmovq %rdx, 0(%rsp)
-    mem[20] = 8'h40;
-    mem[21] = 8'h24;
-    mem[22] = 8'h00;
-    mem[23] = 8'h00;
-    mem[24] = 8'h00;
-    mem[25] = 8'h00;
-    mem[26] = 8'h00;
-    mem[27] = 8'h00;
-    mem[28] = 8'h00;
-    mem[29] = 8'h00;
-//0x01e: b04f                 | popq %rsp
-    mem[30] = 8'hb0;
-    mem[31] = 8'h4f;
-//0x020: 2040                 | rrmovq %rsp, %rax
-    mem[32] = 8'h20;
-    mem[33] = 8'h40;
-//0x022: 00                   | halt
-    mem[34] = 8'h00;
-
+// write instructions in here
 end
 endmodule

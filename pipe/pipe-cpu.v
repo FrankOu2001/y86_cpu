@@ -23,7 +23,6 @@ wire E_bubble, E_stall;
 wire M_bubble, M_stall;
 wire W_bubble, W_stall;
 
-reg  [63:0] PC;
 wire [63:0] F_predPC;
 wire [63:0] f_pc;
 wire [ 3:0] f_icode;
@@ -69,6 +68,7 @@ wire [ 3:0] E_dstE;
 wire [ 3:0] E_srcA;
 wire [ 3:0] E_srcB;
 wire        e_Cnd;
+wire [63:0] e_valA;
 wire [ 2:0] M_stat;
 wire [ 3:0] M_icode;
 wire        M_Cnd;
@@ -86,7 +86,7 @@ assign W_bubble = 1'b0;
 F_pipe_reg F_preg(
     .clk_i(clk),
     .F_stall_i(F_stall),
-    .F_bubble_i(~rst_n | F_bubble),
+    .F_bubble_i(~rst_n || F_bubble),
     .f_predPC_i(f_predPC),
     .F_predPC_o(F_predPC)
 );
@@ -116,7 +116,7 @@ fetch Fetch(
 fetch_D_pipe_reg D_preg(
     .clk_i(clk),
     .D_stall_i(D_stall),
-    .D_bubble_i(~rst_n | D_bubble),
+    .D_bubble_i(~rst_n || D_bubble),
     
     .f_stat_i(f_stat),
     .f_icode_i(f_icode),
@@ -164,7 +164,7 @@ decode Decode(
 decode_E_pipe_reg E_preg(
     .clk_i(clk),
     .E_stall_i(E_stall),
-    .E_bubble_i(~rst_n | E_bubble),
+    .E_bubble_i(~rst_n || E_bubble),
 
     .D_stat_i(D_stat),
     .D_icode_i(D_icode),
@@ -198,9 +198,13 @@ execute Execute(
     .E_valB_i(E_valB),
     .E_dstE_i(E_dstE),
     .E_dstM_i(E_dstM),
+    .E_srcA_i(E_srcA),
+    .M_dstM_i(M_dstM),
+    .m_valM_i(m_valM),
     .m_stat_i(m_stat),
     .W_stat_i(W_stat),
     .e_Cnd_o(e_Cnd),
+    .e_valA_o(e_valA),
     .e_valE_o(e_valE),
     .e_dstE_o(e_dstE),
     .e_dstM_o(E_dstM)
@@ -208,14 +212,14 @@ execute Execute(
 
 execute_M_pipe_reg M_preg(
     .clk_i(clk),
-    .M_bubble_i(~rst_n | M_bubble),
+    .M_bubble_i(~rst_n || M_bubble),
     .M_stall_i(M_stall),
 
     .E_stat_i(E_stat),
     .E_icode_i(E_icode),
     .e_Cnd_i(e_Cnd),
     .e_valE_i(e_valE),
-    .E_valA_i(E_valA),
+    .e_valA_i(e_valA),
     .e_dstE_i(e_dstE),
     .E_dstM_i(E_dstM),
     .M_stat_o(M_stat),
@@ -242,7 +246,7 @@ memory Memory(
 memory_W_pipe_reg W_preg(
     .clk_i(clk),
     .W_stall_i(W_stall),
-    .W_bubble_i(~rst_n | W_bubble),
+    .W_bubble_i(~rst_n || W_bubble),
     .m_stat_i(m_stat),
     .M_icode_i(M_icode),
     .M_valE_i(M_valE),
@@ -279,11 +283,6 @@ pipeline_control Pipeline_Control(
 initial clk = 0;
 always #5 clk = ~clk;
 
-initial begin
-    $dumpfile("wave.vcd");
-    $dumpvars(0, pipe_tb);
-end
-
 always @(*) begin
     if (W_icode == `IHALT) begin
         #10 $finish;
@@ -291,10 +290,15 @@ always @(*) begin
 end
 
 initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, pipe_tb);
+end
+
+initial begin
     // Start!
     rst_n = 0; 
-    #5;
+    #10;
     rst_n = 1; 
-    #5;
+    #10;
 end
 endmodule
