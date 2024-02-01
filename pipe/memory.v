@@ -1,21 +1,21 @@
 `include "define.v"
 
 module memory(
-    input  wire         clk_i,
-    input  wire [2:0]   M_stat_i,
-    input  wire [3:0]   M_icode_i,
-    input  wire [63:0]  M_valE_i,
-    input  wire [63:0]  M_valA_i,
-    input  wire [3:0]   M_dstE_i,
-    input  wire [3:0]   M_dstM_i,
+    input  wire        clk_i,
+    input  wire [ 2:0] M_stat_i,
+    input  wire [ 3:0] M_icode_i,
+    input  wire [63:0] M_valE_i,
+    input  wire [63:0] M_valA_i,
+    input  wire [ 3:0] M_dstE_i,
+    input  wire [ 3:0] M_dstM_i,
 
-    output wire [2:0]   m_stat_o,
-    output wire [63:0]  m_valM_o
+    output wire [ 2:0] m_stat_o,
+    output wire [63:0] m_valM_o
 );
 
-wire mem_read;
-wire mem_write;
-wire dmem_error;
+wire        mem_read;
+wire        mem_write;
+wire        dmem_error;
 wire [63:0] addr;
 
 assign mem_read = (M_icode_i == `IMRMOVQ) | (M_icode_i == `IPOPQ) | (M_icode_i == `IRET);

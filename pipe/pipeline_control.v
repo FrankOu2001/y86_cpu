@@ -1,22 +1,22 @@
 `include "define.v"
 
 module pipeline_control (
-    input wire [3:0]    D_icode_i,
-    input wire [3:0]    d_srcA_i,
-    input wire [3:0]    d_srcB_i,
-    input wire [3:0]    E_icode_i,
-    input wire [3:0]    E_dstM_i,
-    input wire          e_Cnd_i,
-    input wire [3:0]    M_icode_i,
-    input wire [2:0]    m_stat_i,
-    input wire [2:0]    W_stat_i,
+    input wire [3:0] D_icode_i,
+    input wire [3:0] d_srcA_i,
+    input wire [3:0] d_srcB_i,
+    input wire [3:0] E_icode_i,
+    input wire [3:0] E_dstM_i,
+    input wire       e_Cnd_i,
+    input wire [3:0] M_icode_i,
+    input wire [2:0] m_stat_i,
+    input wire [2:0] W_stat_i,
 
-    output wire F_stall_o,
-    output wire D_stall_o,
-    output wire D_bubble_o,
-    output wire E_bubble_o,
-    output wire M_bubble_o,
-    output wire W_stall_o
+    output wire      F_stall_o,
+    output wire      D_stall_o,
+    output wire      D_bubble_o,
+    output wire      E_bubble_o,
+    output wire      M_bubble_o,
+    output wire      W_stall_o
 );
 
 wire h_load_use;
