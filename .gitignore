@@ -8,3 +8,9 @@ pipe/wave
 /target
 /seq
 /test
+pipe-predictor/out.svg
+pipe-predictor/output.json
+pipe-predictor/*.gtkw
+pipe-predictor/*.vcd
+pipe-predictor/target
+pipe-predictor/wave
