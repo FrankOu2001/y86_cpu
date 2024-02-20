@@ -13,6 +13,8 @@
 `include "pipeline_control.v"
 
 module pipe_tb;
+reg [31:0] branch_count = 0;
+reg [31:0] mis_count = 0;
 
 reg clk;
 reg rst_n;
@@ -24,7 +26,7 @@ wire M_bubble, M_stall;
 wire W_bubble, W_stall;
 
 wire [63:0] F_predPC;
-wire [63:0] f_pc;
+wire [63:0] f_PC;
 wire [ 3:0] f_icode;
 wire [ 3:0] f_ifun;
 wire [ 3:0] f_rA;
@@ -33,6 +35,7 @@ wire [63:0] f_valC;
 wire [63:0] f_valP;
 wire [63:0] f_predPC;
 wire [ 2:0] f_stat;
+wire [63:0] D_PC;
 wire [ 3:0] D_icode;
 wire [ 3:0] D_ifun;
 wire [ 3:0] D_rA;
@@ -41,22 +44,14 @@ wire [63:0] D_valC;
 wire [63:0] D_valP;
 wire [63:0] D_predPC;
 wire [ 2:0] D_stat;
-wire [ 3:0] e_dstE;
-wire [63:0] e_valE;
-wire [3:0]  M_dstE;
-wire [63:0] M_valE;
-wire [ 3:0] M_dstM;
-wire [63:0] m_valM;
-wire [ 3:0] W_dstM;
-wire [63:0] W_valM;
-wire [ 3:0] W_dstE;
-wire [63:0] W_valE;
+wire        D_branch_taken;
 wire [63:0] d_valA;
 wire [63:0] d_valB;
 wire [ 3:0] d_dstE;
 wire [ 3:0] d_dstM;
 wire [ 3:0] d_srcA;
 wire [ 3:0] d_srcB;
+wire [63:0] E_PC;
 wire [ 2:0] E_stat;
 wire [ 3:0] E_icode;
 wire [ 3:0] E_ifun;
@@ -67,15 +62,25 @@ wire [ 3:0] E_dstM;
 wire [ 3:0] E_dstE;
 wire [ 3:0] E_srcA;
 wire [ 3:0] E_srcB;
+wire [ 3:0] e_dstE;
+wire [63:0] e_valE;
 wire        e_Cnd;
 wire [63:0] e_valA;
+wire [3:0]  M_dstE;
+wire [63:0] M_valE;
+wire [ 3:0] M_dstM;
 wire [ 2:0] M_stat;
 wire [ 3:0] M_icode;
 wire        M_Cnd;
 wire [63:0] M_valA;
-wire [ 2:0]  m_stat;
-wire [ 2:0]  W_stat;
-wire [ 3:0]  W_icode;
+wire [63:0] m_valM;
+wire [ 2:0] m_stat;
+wire [ 3:0] W_dstM;
+wire [63:0] W_valM;
+wire [ 3:0] W_dstE;
+wire [63:0] W_valE;
+wire [ 2:0] W_stat;
+wire [ 3:0] W_icode;
 
 // initialize useless signals
 assign F_bubble = 1'b0;
@@ -98,11 +103,11 @@ select_pc Select_PC(
     .M_valA_i(M_valA),
     .W_icode_i(W_icode),
     .W_valM_i(W_valM),
-    .f_pc_o(f_pc)
+    .f_PC_o(f_PC)
 );
 
 fetch Fetch(
-    .PC_i(f_pc),
+    .PC_i(f_PC),
     .icode_o(f_icode),
     .ifun_o(f_ifun),
     .rA_o(f_rA),
@@ -285,8 +290,14 @@ always #5 clk = ~clk;
 
 always @(*) begin
     if (W_icode == `IHALT) begin
+        $display("%d %d", branch_count, mis_count);
         #10 $finish;
     end
+end
+
+always @(posedge clk) begin
+    if (W_icode == 4'H7) branch_count <= branch_count + 1;
+    if (E_icode == 4'H7 && (~e_Cnd)) mis_count <= mis_count + 1;
 end
 
 initial begin

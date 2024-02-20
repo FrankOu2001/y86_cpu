@@ -1,6 +1,5 @@
 module F_pipe_reg (
     input  wire        clk_i,
-    input  wire        rst_n_i,
     input  wire        F_stall_i,
     input  wire        F_bubble_i,
     input  wire [63:0] f_predPC_i,

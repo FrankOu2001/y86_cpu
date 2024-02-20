@@ -26,7 +26,6 @@ instr_memory mem(
 assign icode_o     = instr[7:4];
 assign ifun_o      = instr[3:0];
 assign instr_valid = (icode_o < 4'hC);
-assign halt        = icode_o == `IHALT;
 assign need_regids = (icode_o == `IRRMOVQ) || (icode_o == `IIRMOVQ) || 
     (icode_o == `IMRMOVQ) || (icode_o == `IOPQ) || 
     (icode_o == `IRMMOVQ) || (icode_o == `IPUSHQ) || (icode_o == `IPOPQ);
@@ -62,6 +61,5 @@ assign rdata_o = {
 };
 
 initial begin
-// write instructions in here
 end
 endmodule
