@@ -64,5 +64,6 @@ assign data_o = read_i ? { mem[addr_i + 7], mem[addr_i + 6],
     mem[addr_i + 1], mem[addr_i] } : 64'b0;
 
 initial begin
+// write memory data in here
 end
 endmodule
