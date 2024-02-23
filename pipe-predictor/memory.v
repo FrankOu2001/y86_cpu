@@ -52,13 +52,15 @@ reg [7:0] mem[0:1023];
 assign dmem_error_o = (addr_i >= MAX_SIZE) ? 1 : 0;
 
 always @(posedge clk_i) begin
-  if (write_i) { mem[addr_i + 7], mem[addr_i + 6], 
-  mem[addr_i + 5], mem[addr_i + 4],
-  mem[addr_i + 3], mem[addr_i + 2],
-  mem[addr_i + 1], mem[addr_i] } <= data_i;
+  if (write_i & ~dmem_error_o) { 
+    mem[addr_i + 7], mem[addr_i + 6], 
+    mem[addr_i + 5], mem[addr_i + 4],
+    mem[addr_i + 3], mem[addr_i + 2],
+    mem[addr_i + 1], mem[addr_i] 
+  } <= data_i;
 end
 
-assign data_o = (dmem_error_o & read_i) ? { 
+assign data_o = (read_i & ~dmem_error_o) ? { 
   mem[addr_i + 7], mem[addr_i + 6], 
   mem[addr_i + 5], mem[addr_i + 4],
   mem[addr_i + 3], mem[addr_i + 2],
