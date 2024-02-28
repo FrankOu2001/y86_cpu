@@ -14,3 +14,9 @@ pipe-predictor/*.gtkw
 pipe-predictor/*.vcd
 pipe-predictor/target
 pipe-predictor/wave
+pipe-predictor-cache/out.svg
+pipe-predictor-cache/output.json
+pipe-predictor-cache/*.gtkw
+pipe-predictor-cache/*.vcd
+pipe-predictor-cache/target
+pipe-predictor-cache/wav
