@@ -15,8 +15,8 @@
 
 module pipe_tb;
 
-reg [31:0] branch_count = 0;
-reg [31:0] mis_count = 0;
+reg [63:0] branch_count = 0;
+reg [63:0] mis_count = 0;
 
 reg clk;
 reg rst_n;

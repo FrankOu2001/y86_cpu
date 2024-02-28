@@ -89,7 +89,7 @@ assign rvalB_o = srcB_i != `RNONE ? registers[srcB_i] : 64'b0;
 
 always @(posedge clk_i) begin
     if (dstE_i != `RNONE) registers[dstE_i] <= valE_i;
-    if (dstM_i != `RNONE) registers[dstM_i] <= valM_i;
+    else if (dstM_i != `RNONE) registers[dstM_i] <= valM_i;
 end    
 
 integer i;
