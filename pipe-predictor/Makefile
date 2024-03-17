@@ -16,6 +16,11 @@ pipe-test: $(sources)
 	@$(CC) -o $(output_dir)/pipe-cpu.vvp pipe-cpu.v
 	vvp $(output_dir)/pipe-cpu.vvp
 	@gtkwave pipe.gtkw
+
+auto-test: $(sources)
+	@$(CC) -o $(output_dir)/cpu.vvp pipe-cpu.v
+	vvp $(output_dir)/cpu.vvp
+	rm  $(output_dir)/cpu.vvp
 	
 fetch-test: $(wildcard fetch*)
 	@$(CC) -o $(output_dir)/fetch.vvp fetch_tb.v

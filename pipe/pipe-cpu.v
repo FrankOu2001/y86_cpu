@@ -297,7 +297,7 @@ end
 
 always @(posedge clk) begin
     if (W_icode == 4'H7) branch_count <= branch_count + 1;
-    if (E_icode == 4'H7 && (~e_Cnd)) mis_count <= mis_count + 1;
+    if (M_icode == 4'H7 && (~M_Cnd)) mis_count <= mis_count + 1;
 end
 
 initial begin

@@ -46,8 +46,8 @@ module instr_memory (
   output  wire        imem_error_o
 );
 
-localparam MEM_MAX_SIZE = 1024;
-reg [7:0] mem[0:1023];
+localparam MEM_MAX_SIZE = 2048;
+reg [7:0] mem[0:MEM_MAX_SIZE-1];
 
 assign imem_error_o = (raddr_i >= MEM_MAX_SIZE);
 assign rdata_o = {
@@ -58,5 +58,6 @@ assign rdata_o = {
 };
 
 initial begin
+  $readmemh("../input.txt", mem);
 end
 endmodule

@@ -18,7 +18,8 @@ end
 
 integer i;
 initial begin
-  for (i = 0; i < 1024; i = i + 1)
+  for (i = 0; i < 16; i = i + 1) begin
     data_mem[i] = 0;
+  end
 end
 endmodule

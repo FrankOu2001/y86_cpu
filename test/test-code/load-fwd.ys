@@ -1,0 +1,18 @@
+.pos 0
+
+irmovq stack, %rsp
+irmovq $0x100, %rcx
+irmovq $0x110, %rax
+rmmovq %rax, 0(%rcx)
+
+mrmovq 0(%rcx),%rdx # Load 1
+pushq %rdx          # Store 1
+
+nop 
+popq %rdx           # Load 2
+rmmovq %rax,0(%rdx) # Store 2
+halt
+
+.pos 0x200
+stack:
+

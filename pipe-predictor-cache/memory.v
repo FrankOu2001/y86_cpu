@@ -11,13 +11,13 @@ module memory(
   input  wire [63:0] M_valA_i,
   input  wire [ 3:0] M_dstE_i,
   input  wire [ 3:0] M_dstM_i,
-
+  input  wire        done,
+  
   output wire [ 2:0] m_stat_o,
   output wire [63:0] m_valM_o,
-  output wire        h_memory_access_o
+  output wire        h_cache_access_o
 );
 
-wire         cpu_req_ready;
 wire         cpu_req_valid;
 wire         cpu_req_rw;
 wire [63:0]  cpu_req_addr;
@@ -41,7 +41,7 @@ assign cpu_req_addr =  (M_icode_i == `IRMMOVQ || M_icode_i == `IMRMOVQ ||
             (M_icode_i == `IPOPQ || M_icode_i == `IRET) ? M_valA_i : 64'b0;
 assign m_stat_o = dmem_error ? `SADR : M_stat_i;
 
-assign h_memory_access_o = cpu_req_valid & ~cpu_res_ready;
+assign h_cache_access_o = cpu_req_valid & ~cpu_res_ready;
 
 ram RAM(
   .clk_i(clk_i),
@@ -51,7 +51,8 @@ ram RAM(
   .mem_rw_i(mem_rw),
   .dmem_error_o(dmem_error),
   .mem_rdata_o(mem_rdata),
-  .mem_ready_o(mem_ready)
+  .mem_ready_o(mem_ready),
+  .done(done)
 );
 
 cache_fsm CACHE(

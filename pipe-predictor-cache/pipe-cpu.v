@@ -90,7 +90,8 @@ wire        mem_re;
 wire        mem_we;
 wire        dmem_error;
 wire [63:0] mem_rdata;
-wire        h_memory_access;
+wire        h_cache_access;
+reg         done = 0;
 
 F_pipe_reg F_preg(
     .clk_i(clk),
@@ -187,7 +188,8 @@ decode Decode(
     .d_dstE_o(d_dstE),
     .d_dstM_o(d_dstM),
     .d_srcA_o(d_srcA),
-    .d_srcB_o(d_srcB)
+    .d_srcB_o(d_srcB),
+    .done(done)
 );
 
 decode_E_pipe_reg E_preg(
@@ -277,7 +279,8 @@ memory Memory(
     .M_dstM_i(M_dstM),
     .m_stat_o(m_stat),
     .m_valM_o(m_valM),
-    .h_memory_access_o(h_memory_access)
+    .h_cache_access_o(h_cache_access),
+    .done(done)
 );
 
 memory_W_pipe_reg W_preg(
@@ -309,8 +312,7 @@ pipeline_control Pipeline_Control(
     .M_icode_i(M_icode),
     .m_stat_i(m_stat),
     .W_stat_i(W_stat),
-    .h_memory_access_i(h_memory_access),
-
+    .h_cache_access_i(h_cache_access),
     .F_stall_o(F_stall),
     .D_stall_o(D_stall),
     .D_bubble_o(D_bubble),
@@ -325,14 +327,9 @@ pipeline_control Pipeline_Control(
 initial clk = 0;
 always #5 clk = ~clk;
 
-always @(posedge clk) begin
-    if (E_PC == 'h2C2) begin
-        $display("%h", e_valE);
-    end
-end
-
 always @(*) begin
     if (W_icode == `IHALT) begin
+        done = 1;
         #10 $finish;
     end
 end
@@ -346,6 +343,6 @@ initial begin
     // Start!
     rst_n = 0; #10;
     rst_n = 1; 
-    // #10000; $finish;
+    #4000000000;$finish;
 end
 endmodule

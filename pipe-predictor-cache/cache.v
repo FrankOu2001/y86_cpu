@@ -25,7 +25,34 @@ module cache_fsm(
 localparam TAGMSB = 63, TAGLSB = 9;
 localparam idle = 0, compare_tag = 1, allocate = 2, write_back = 3;
 
-reg [1:0] vstate, rstate;
+// ! 统计Cache访问花费周期
+reg [63:0] c_cycle = 0;
+reg [63:0] c_access = 0;
+reg [63:0] c_miss = 0;
+reg [63:0] c_mem = 0;
+
+always @(posedge clk_i) begin
+  if (rstate == idle && vstate == compare_tag) begin
+    c_access += 1;
+    c_cycle += 1;
+  end
+  else if (rstate == compare_tag) begin
+    if (vstate != idle) c_miss += 1;
+    c_cycle += 1;
+  end
+  else if (rstate == write_back) begin
+    c_mem += 1;
+    c_cycle += 10;
+  end
+  else if (rstate == allocate) begin
+    c_mem += 1;
+    c_cycle += 10;
+  end
+end
+// !
+
+reg [1:0] vstate;
+reg [1:0] rstate;
 
 /* signals to tag memory */
 wire                 tag_read_valid;
@@ -61,8 +88,7 @@ always @(*) begin
   vstate = rstate;
   v_cpu_res_data    = 0;
   v_cpu_res_ready   = 0;
-  // !书上是logicl类型,默认值为0,所以这里设置为默认值为0,需要访存的阶段都得设置为1
-  v_mem_req_valid   = 0;
+  
   tag_write_dirty   = 0;
   tag_write_valid   = 0;
   tag_write_tag     = 0;
@@ -98,6 +124,7 @@ always @(*) begin
   //------Cache FSM------
   case (rstate)
     idle: begin
+      v_mem_req_valid = 0;
       /* 如果有cpu访问cache的请求,进入标签比较 */
       if (cpu_req_valid_i)
         vstate = compare_tag;
@@ -106,7 +133,7 @@ always @(*) begin
       /* cache hit & valid */
       if (cpu_req_addr_i[TAGMSB:TAGLSB] == tag_read_tag && tag_read_valid) begin
         v_cpu_res_ready = 1;
-
+        v_mem_req_valid = 0;
         /* 写命中 */
         if (cpu_req_rw_i) begin
           /* 修改cache行 */
@@ -118,7 +145,7 @@ always @(*) begin
           /* 标记cache内容修改过 */
           tag_write_dirty = 1;
         end
-          vstate = idle;
+        vstate = idle;
       end
       /* cache miss */
       else begin
@@ -149,7 +176,6 @@ always @(*) begin
     end
     allocate: begin
       /* 内存控制器响应 */
-      v_mem_req_valid = 1;
       if (mem_data_ready_i) begin
         /* 回到compare tag */
         vstate = compare_tag;
@@ -160,7 +186,6 @@ always @(*) begin
     end
     write_back: begin
       /* 写回完成 */
-      v_mem_req_valid = 1;
       if (mem_data_ready_i) begin
         /* 发起新的内存请求,请求分配新的cache行 */
         v_mem_req_valid = 1;
@@ -178,6 +203,7 @@ end
 
 cache_tag ctag(
   .clk_i(clk_i),
+  .rst_n_i(rst_n_i),
   .tag_index_i(tag_req_index),
   .tag_we_i(tag_req_we),
   .tag_write_i({ tag_write_valid, tag_write_dirty, tag_write_tag }),

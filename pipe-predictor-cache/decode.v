@@ -19,6 +19,7 @@ module decode(
     input  wire [63:0] W_valM_i,
     input  wire [ 3:0] W_dstE_i,
     input  wire [63:0] W_valE_i,
+    input  wire        done,
 
     output wire [63:0] d_valA_o,
     output wire [63:0] d_valB_o,
@@ -39,7 +40,8 @@ register_file files(
     .dstM_i(W_dstM_i),
     .valM_i(W_valM_i),
     .rvalA_o(d_rvalA),
-    .rvalB_o(d_rvalB)
+    .rvalB_o(d_rvalB),
+    .done(done)
 );
 
 assign d_srcA_o = (D_icode_i == `IRRMOVQ || D_icode_i == `IRMMOVQ || 
@@ -78,22 +80,45 @@ module register_file (
     input  wire [3:0]   dstM_i,
     input  wire [63:0]  valE_i,
     input  wire [63:0]  valM_i,
+    input  wire         done,
 
     output wire [63:0]  rvalA_o,
     output wire [63:0]  rvalB_o
 );
-reg [63:0] registers[14:0];
+reg [63:0] regs[14:0];
 
-assign rvalA_o = srcA_i != `RNONE ? registers[srcA_i] : 64'b0;
-assign rvalB_o = srcB_i != `RNONE ? registers[srcB_i] : 64'b0;
+assign rvalA_o = srcA_i != `RNONE ? regs[srcA_i] : 64'b0;
+assign rvalB_o = srcB_i != `RNONE ? regs[srcB_i] : 64'b0;
 
 always @(posedge clk_i) begin
-    if (dstE_i != `RNONE) registers[dstE_i] <= valE_i;
-    if (dstM_i != `RNONE) registers[dstM_i] <= valM_i;
+    if (dstE_i != `RNONE) regs[dstE_i] <= valE_i;
+    if (dstM_i != `RNONE) regs[dstM_i] <= valM_i;
 end    
+
+integer fd;
+always @(posedge done) begin
+  fd = $fopen("./output.txt", "w");
+  $fdisplay(fd, "Changes to registers:");
+  if (0 != regs[0]) $fdisplay(fd, "%%rax:\t0x%016h\t0x%016h", 0, regs[0]);
+  if (0 != regs[1]) $fdisplay(fd, "%%rcx:\t0x%016h\t0x%016h", 0, regs[1]);    
+  if (0 != regs[2]) $fdisplay(fd, "%%rdx:\t0x%016h\t0x%016h", 0, regs[2]);
+  if (0 != regs[3]) $fdisplay(fd, "%%rbx:\t0x%016h\t0x%016h", 0, regs[3]);
+  if (0 != regs[4]) $fdisplay(fd, "%%rsp:\t0x%016h\t0x%016h", 0, regs[4]);
+  if (0 != regs[5]) $fdisplay(fd, "%%rbp:\t0x%016h\t0x%016h", 0, regs[5]);
+  if (0 != regs[6]) $fdisplay(fd, "%%rsi:\t0x%016h\t0x%016h", 0, regs[6]);
+  if (0 != regs[7]) $fdisplay(fd, "%%rdi:\t0x%016h\t0x%016h", 0, regs[7]);
+  if (0 != regs[8]) $fdisplay(fd, "%%r8:\t0x%016h\t0x%016h", 0, regs[8]);
+  if (0 != regs[9]) $fdisplay(fd, "%%r9:\t0x%016h\t0x%016h", 0, regs[9]);
+  if (0 != regs[10]) $fdisplay(fd, "%%r10:\t0x%016h\t0x%016h", 0, regs[10]);
+  if (0 != regs[11]) $fdisplay(fd, "%%r11:\t0x%016h\t0x%016h", 0, regs[11]);
+  if (0 != regs[12]) $fdisplay(fd, "%%r12:\t0x%016h\t0x%016h", 0, regs[12]);
+  if (0 != regs[13]) $fdisplay(fd, "%%r13:\t0x%016h\t0x%016h", 0, regs[13]);
+  if (0 != regs[14]) $fdisplay(fd, "%%r14:\t0x%016h\t0x%016h", 0, regs[14]);
+  $fclose(fd);
+end
 
 integer i;
 initial begin
-    for (i = 0; i < 15; i = i + 1) registers[i] = 0;
+    for (i = 0; i < 15; i = i + 1) regs[i] = 0;
 end
 endmodule

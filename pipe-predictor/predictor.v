@@ -60,8 +60,8 @@ localparam SNT = 2'b00, WNT = 2'b01, WT = 2'b10, ST = 2'b11;
 reg [1:0] PHT[PHT_SIZE-1:0];
 reg [INDEX_BITS-1:0] predict_history, train_history;
 
-wire [INDEX_BITS-1:0] train_pc    = E_PC[2+:INDEX_BITS];
-wire [INDEX_BITS-1:0] predict_pc  = f_PC[2+:INDEX_BITS];
+wire [INDEX_BITS-1:0] train_pc    = E_PC[0+:INDEX_BITS];
+wire [INDEX_BITS-1:0] predict_pc  = f_PC[0+:INDEX_BITS];
 
 always @(posedge clk) begin
   if (reset) begin

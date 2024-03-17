@@ -87,6 +87,8 @@ wire [63:0] W_valE;
 wire [ 2:0] W_stat;
 wire [ 3:0] W_icode;
 
+reg done = 0;
+
 F_pipe_reg F_preg(
     .clk_i(clk),
     .F_stall_i(F_stall),
@@ -182,7 +184,8 @@ decode Decode(
     .d_dstE_o(d_dstE),
     .d_dstM_o(d_dstM),
     .d_srcA_o(d_srcA),
-    .d_srcB_o(d_srcB)
+    .d_srcB_o(d_srcB),
+    .done(done)
 );
 
 decode_E_pipe_reg E_preg(
@@ -240,7 +243,7 @@ execute Execute(
 
 execute_M_pipe_reg M_preg(
     .clk_i(clk),
-    .M_bubble_i(~rst_n),
+    .M_bubble_i(~rst_n || M_bubble),
     .M_stall_i(1'b0),
 
     .E_stat_i(E_stat),
@@ -270,7 +273,8 @@ memory Memory(
     .M_dstE_i(M_dstE),
     .M_dstM_i(M_dstM),
     .m_stat_o(m_stat),
-    .m_valM_o(m_valM)
+    .m_valM_o(m_valM),
+    .done(done)
 );
 
 memory_W_pipe_reg W_preg(
@@ -317,13 +321,14 @@ always #5 clk = ~clk;
 always @(*) begin
     if (W_icode == `IHALT) begin
         $display("%d %d", branch_count, mis_count);
+        done = 1;
         #10 $finish;
     end
 end
 
 always @(posedge clk) begin
     if (W_icode == 4'H7) branch_count <= branch_count + 1;
-    if (E_icode == 4'H7 && (e_Cnd ^ E_branch_taken)) mis_count <= mis_count + 1;
+    if (M_icode == 4'H7 && (M_Cnd ^ M_branch_taken)) mis_count <= mis_count + 1;
 end
 
 initial begin
@@ -335,5 +340,6 @@ initial begin
     // Start!
     rst_n = 0; #5;
     rst_n = 1; 
+    #40000000;$finish;
 end
 endmodule

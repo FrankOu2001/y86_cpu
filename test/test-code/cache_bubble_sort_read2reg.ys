@@ -1,0 +1,155 @@
+# Execution begins at address 0
+    .pos 0
+    irmovq stack, %rsp      # Set up stack pointer
+    call main       # Execute main program
+    halt            # Terminate program
+
+# sample linked list of 3 elements
+    .align 64
+Array:
+    .quad 0x0000000000000105
+    .quad 0x0000000000000104
+    .quad 0x000000000000010C
+    .quad 0x0000000000000102
+    .quad 0x0000000000000101
+    .quad 0x0000000000000100
+    .quad 0x0000000000000005
+    .quad 0x0000000000000004
+    .quad 0x000000000000000C
+    .quad 0x0000000000000002
+    .quad 0x0000000000000001
+    .quad 0x000000000000000B
+    .quad 0x0000000d000d000D
+	.quad 0xffffff3fff3fff40  # -0x000000c000c000c0
+	.quad 0x00000b000b000b00
+	.quad 0xffff5fff5fff6000  # -0x0000a000a000a000  
+	.quad 0xf000000000000005
+    .quad 0xf000000000000004
+    .quad 0xf00000000000000C
+    .quad 0xf000000000000002
+    .quad 0xf000000000000001
+    .quad 0xf000000000000000
+    .quad 0x0f00000000000105
+    .quad 0x0f00000000000104
+    .quad 0x0f0000000000010C
+    .quad 0x0f00000000000102
+    .quad 0x0f00000000000101
+    .quad 0x0f00000000000100
+    .quad 0x0f00000000000005
+    .quad 0x0f00000000000004
+    .quad 0x0f0000000000000C
+    .quad 0x0f00000000000002
+    .quad 0x0000000000000105
+    .quad 0x0000000000000104
+    .quad 0x000000000000010C
+    .quad 0x0000000000000102
+    .quad 0x0000000000000101
+    .quad 0x0000000000000100
+    .quad 0x0000000000000005
+    .quad 0x0000000000000004
+    .quad 0x000000000000000C
+    .quad 0x0000000000000002
+    .quad 0x0000000000000001
+    .quad 0x000000000000000B
+    .quad 0x0000000d000d000D
+	.quad 0xffffff3fff3fff40  # -0x000000c000c000c0
+	.quad 0x00000b000b000b00
+	.quad 0xffff5fff5fff6000  # -0x0000a000a000a000  
+	.quad 0xf000000000000005
+    .quad 0xf000000000000004
+    .quad 0xf00000000000000C
+    .quad 0xf000000000000002
+    .quad 0xf000000000000001
+    .quad 0xf000000000000000
+    .quad 0x0f00000000000105
+    .quad 0x0f00000000000104
+    .quad 0x0f0000000000010C
+    .quad 0x0f00000000000102
+    .quad 0x0f00000000000101
+    .quad 0x0f00000000000100
+    .quad 0x0f00000000000005
+    .quad 0x0f00000000000004
+    .quad 0x0f0000000000000C
+    .quad 0x0f00000000000002
+
+main:
+    irmovq Array,%rdi
+    irmovq $64,%rsi
+    call bubble_sort
+    irmovq Array,%rdi
+    irmovq $128,%rsi
+    call flush_cache
+    ret
+
+# void bubble_sort(long *data, long count)
+# data in %rdi, count in %rsi
+bubble_sort:
+    pushq %r8
+    pushq %r9
+    pushq %r10
+    pushq %r11
+    pushq %r12
+    pushq %r13
+    pushq %r14
+    irmovq $8,%r8      # Constant 8
+    rrmovq %rdi,%r9    # last in %r9
+    addq %rsi,%rsi
+    addq %rsi,%rsi
+    addq %rsi,%rsi
+    subq %r8,%rsi
+    addq %rsi,%r9      # last = data + count - 1
+L1:
+    rrmovq %r9,%r10
+    subq %rdi,%r10
+    jle L2
+    rrmovq %rdi,%r11   # i in %r11
+L3:
+    rrmovq %r9,%r12
+    subq %r11,%r12
+    jle L4
+    mrmovq (%r11),%r12     # *i
+    mrmovq 8(%r11),%r13    # *(i+1)
+    rrmovq %r12,%r14
+    subq %r13,%r14
+    jle L5
+    rrmovq %r13,%r14
+    rmmovq %r12,8(%r11)
+    rmmovq %r14,(%r11)
+L5:
+    addq %r8,%r11   # i++
+    jmp L3
+L4:
+    subq %r8,%r9    # last--
+    jmp L1
+L2:
+    popq %r14
+    popq %r13
+    popq %r12
+    popq %r11
+    popq %r10
+    popq %r9
+    popq %r8
+    ret
+
+flush_cache:
+    irmovq $8,%r8      # Constant 8
+    rrmovq %rdi,%r9    # last in %r9
+    addq %rsi,%rsi
+    addq %rsi,%rsi
+    addq %rsi,%rsi
+    addq %rsi,%r9      # last = data + count
+L6:
+    rrmovq %r9,%r10
+    subq %rdi,%r10
+    jle L7
+    mrmovq (%rdi),%rax     # *i
+    rmmovq %rax,(%rdi)
+    addq %r8,%rdi          # i++
+    jmp L6
+L7:
+    ret
+
+# Stack starts here and grows to lower addresses
+    .pos 0x800
+stack:
+

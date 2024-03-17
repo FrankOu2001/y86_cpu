@@ -11,7 +11,7 @@ module pipeline_control (
     input wire [3:0] M_icode_i,
     input wire [2:0] m_stat_i,
     input wire [2:0] W_stat_i,
-    input wire       h_memory_access_i,
+    input wire       h_cache_access_i,
 
     output wire      F_stall_o,
     output wire      D_stall_o,
@@ -36,14 +36,14 @@ assign h_ret = D_icode_i == `IRET || E_icode_i == `IRET || M_icode_i == `IRET;
 
 assign h_mispredict = (E_icode_i == `IJXX) & (e_Cnd_i ^ E_branch_taken_i);
 
-assign F_stall_o = h_memory_access_i | h_load_use | h_ret;
-assign D_bubble_o = ~h_memory_access_i & (h_mispredict | (~h_load_use & h_ret));
-assign D_stall_o = h_memory_access_i | h_load_use;
-assign E_stall_o = h_memory_access_i;
-assign E_bubble_o = ~h_memory_access_i & (h_load_use | h_mispredict);
-assign M_stall_o = ~M_bubble_o & h_memory_access_i;
+assign F_stall_o = h_cache_access_i | h_load_use | h_ret;
+assign D_bubble_o = ~h_cache_access_i & (h_mispredict | (~h_load_use & h_ret));
+assign D_stall_o = h_cache_access_i | h_load_use;
+assign E_stall_o = h_cache_access_i;
+assign E_bubble_o = ~h_cache_access_i & (h_load_use | h_mispredict);
+assign M_stall_o = ~M_bubble_o & h_cache_access_i;
 assign M_bubble_o = (m_stat_i == `SADR || m_stat_i == `SINS || m_stat_i == `SHLT) ||
     (W_stat_i == `SADR || W_stat_i == `SINS || W_stat_i == `SHLT);
-assign W_bubble_o = ~W_stall_o & h_memory_access_i;
+assign W_bubble_o = ~W_stall_o & h_cache_access_i;
 assign W_stall_o = (W_stat_i == `SADR || W_stat_i == `SINS || W_stat_i == `SHLT);
 endmodule

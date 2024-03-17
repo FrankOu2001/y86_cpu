@@ -4,6 +4,7 @@ module ram (
   input  wire [63:0]  mem_addr_i,
   input  wire [255:0] mem_wdata_i,
   input  wire         mem_rw_i,
+  input  wire         done,
 
   output wire         dmem_error_o,
   output reg         mem_ready_o,
@@ -12,10 +13,11 @@ module ram (
 
 parameter MAX_SIZE = 2048;
 reg [7:0] mem[0:MAX_SIZE-1];
-wire [9:0] addr;
-assign addr = mem_addr_i;
+reg [7:0] mem_copy[0:MAX_SIZE-1];
+wire [10:0] addr;
+assign addr = mem_addr_i[10:0];
 assign dmem_error_o = mem_valid_i & (mem_addr_i + 8 >= MAX_SIZE) ? 1 : 0;
-// assign mem_ready_o = mem_valid_i & ~dmem_error_o;
+
 always @(posedge clk_i) begin
   mem_ready_o = mem_valid_i & ~dmem_error_o;
   if (mem_valid_i & ~dmem_error_o) begin
@@ -59,7 +61,35 @@ assign mem_rdata_o = (mem_valid_i & ~dmem_error_o & ~mem_rw_i) ? {
   mem[addr + 1],  mem[addr] 
 } : 0;
 
+integer fd;
+reg [15:0] i;
+reg [63:0] d1, d2;
+always @(posedge done) #1 begin
+  fd = $fopen("./output.txt", "a");
+  $fdisplay(fd, "\nChanges to memory:");
+  for (i = 0; i < MAX_SIZE; i = i + 8) begin
+    d1 = {
+      mem_copy[i + 7], mem_copy[i + 6], 
+      mem_copy[i + 5], mem_copy[i + 4],
+      mem_copy[i + 3], mem_copy[i + 2],
+      mem_copy[i + 1], mem_copy[i]
+    };
+    d2 = { 
+      mem[i + 7], mem[i + 6], 
+      mem[i + 5], mem[i + 4],
+      mem[i + 3], mem[i + 2],
+      mem[i + 1], mem[i] 
+    };
+    if (d1 != d2) begin
+      $fdisplay(fd, "0x%04h:\t0x%016h\t0x%016h\t", i, d1, d2);
+    end
+  end
+  $fclose(fd);
+end
+
 initial begin
+  $readmemh("../input.txt", mem);
+  $readmemh("../input.txt", mem_copy);
 end
 
 endmodule

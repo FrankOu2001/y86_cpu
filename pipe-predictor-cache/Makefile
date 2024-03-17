@@ -17,6 +17,11 @@ pipe-test: $(sources)
 	vvp $(output_dir)/pipe-cpu.vvp
 	@gtkwave pipe.gtkw
 
+auto-test: $(sources)
+	@$(CC) -o $(output_dir)/cpu.vvp pipe-cpu.v
+	vvp $(output_dir)/cpu.vvp
+	rm  $(output_dir)/cpu.vvp
+
 .PHONY : clean
 clean :
 	-rm -r $(output_dir)
